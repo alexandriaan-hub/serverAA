@@ -18,53 +18,26 @@ app.get('/', (req, res) => {
 app.use('/', pagesRouter);
 app.use('/api', apiRouter);
 
-// app.get('/entries', (req, res) => {
-//   const entries = [
-//     { title: 'First note' },
-//     { title: 'Second note' },
-//     { title: 'Third note' },
-//   ];
-//   res.render('entries', { title: 'My Notes', entries });
-// });
-
-// app.get('/entries', (req, res) => {
-//   const entries = [{ title: 'First note' }, { title: 'Second note' }];
-//   const inner = '<ul>' + entries.map(e => `<li>${e.title}</li>`).join('') + '</ul>';
-//   res.render('layout', { title: 'Entries', body: inner, entries });
-// });
-
-// app.get('/entries', (req, res) => {
-//   const entries = [
-//     { title: 'body1' },
-//     { title: 'body2' },
-//     { title: 'body3' },
-//   ];
-//   res.render('entries', { title: 'My Notes', entries });
-// });
-
-const entries = [{ title: 'First note' }, { title: 'Second note' }];
-
+// from reading portion unit 3, works:
 app.get('/entries', (req, res) => {
+  const entries = [
+    { title: 'First note' },
+    { title: 'Second note' },
+    { title: 'Third note' },
+  ];
   res.render('entries', { title: 'My Notes', entries });
 });
 
-app.get('/entries/:id', (req, res) => {
-  const index = parseInt(req.params.id);
-  // const inner = '<ul>' + entries.map(e => `<li>${e.title}</li>`).join('') + '</ul>';
-  const currentEntry = entries[index];
-  if(!currentEntry) {
-    res.status(404).send('Entry not found.');
-    return;
-  }
-  // const inner = '<ul>' + entries.map(e => `<li>${e.title}</li>`).join('') + '</ul>';
-  // const entry = '<ul>' + `<li>${currentEntry.title}</li>`.join('') + '</ul>';
-  res.render('entries', { title: currentEntry.title, currentEntry });
+
+const events = [
+  { title: 'Career fair' },
+  { title: 'Hackathon kickoff' },
+];
+
+app.get('/events', (req, res) => {
+  res.render('events', { events });
 });
 
-// app.get('/entries/:id', (req, res) => {
-//   const index = req.params.id;
-
-// });
 
 const projects = [
   { name: 'Weather app', tag: 'javascript' },

@@ -1,0 +1,15 @@
+
+<!-- <% if(events.length == 0) { %>
+    <%= 'No events listed.' %>
+<% return; %>
+<% }; %> -->
+<% if(events.length == 0) { %>
+    <p>No events listed.</p>
+    <!-- <% return; %> -->
+<% } else { %>
+    <ul>
+<% events.forEach(event => { %>
+  <li><%= event.title %></li>
+<% }); %>   
+</ul>
+<% } %>
