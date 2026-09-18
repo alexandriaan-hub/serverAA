@@ -4,9 +4,9 @@ import apiRouter from './routes/api.js';
 import { join } from 'path';
 
 const app = express();
+app.set("view engine", "ejs");
 const PORT = process.env.PORT || 3000;
 
-app.set('view engine', 'ejs');
 app.set('views', 'views');
 
 app.use(express.static('public'));
@@ -72,6 +72,10 @@ app.get('/projects', (req, res) => {
 
 app.use((req, res) => {
   res.status(404).send('Page not found.');
+});
+
+app.get("/about", (req, res) => {
+  res.render("about", { title: "About" });
 });
 
 app.listen(PORT, () => {
