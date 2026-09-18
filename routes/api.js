@@ -10,4 +10,6 @@ router.get('/status', (req, res) => { // same as /api/status
     res.json({ status: 'ok', uptime: process.uptime() });
 });
 
+
+
 export default router;
