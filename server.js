@@ -11,6 +11,18 @@ app.set('views', 'views');
 
 app.use(express.static('public'));
 
+app.use(express.json());
+
+const wishlist = [];
+
+app.post('/wishlist', (req, res) => {
+  const { item, note } = req.body;
+  // your decision goes here
+  const newItem = { item, note };
+  wishlist.push(newItem);
+  res.status(201).json(newItem);
+});
+
 app.get('/', (req, res) => {
   res.sendFile(join(import.meta.dirname, 'public', 'index.html'));
 });
@@ -28,6 +40,15 @@ app.get('/entries', (req, res) => {
   res.render('entries', { title: 'My Notes', entries });
 });
 
+app.delete('/entries/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  if (Number.isNaN(id) || id < 0 || id >= entries.length) {
+    res.status(404).json({ error: 'Entry not found' });
+    return;
+  }
+  entries.splice(id, 1);
+  res.status(204).send();
+});
 
 const events = [
   { title: 'Career fair' },
