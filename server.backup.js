@@ -1,6 +1,8 @@
 import express from 'express';
-// import pagesRouter from './routes/pages.js';
-// import apiRouter from './routes/api.js';
+import pagesRouter from './routes/pages.js';
+import apiRouter from './routes/api.js';
+import { join } from 'path';
+import { readFile, writeFile } from 'fs/promises';
 import entriesRouter from './routes/entries.js';
 import morgan from 'morgan';
 
@@ -14,7 +16,7 @@ app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// unit 9 logger
+// unit 9
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.url}`);
   next();
@@ -23,6 +25,12 @@ app.use((req, res, next) => {
 app.use(morgan('dev'));
 
 app.use('/entries', entriesRouter);
+
+const ENTRIES_FILE = 'entries.json';
+
+const writeEntries = async (entries) => {
+  await writeFile(ENTRIES_FILE, JSON.stringify(entries, null, 2));
+};
 
 const wishlist = [];
 
@@ -34,14 +42,25 @@ app.post('/wishlist', (req, res) => {
   res.status(201).json(newItem);
 });
 
-// app.use('/', pagesRouter);
-// app.use('/api', apiRouter);
+app.get('/', (req, res) => {
+  res.sendFile(join(import.meta.dirname, 'public', 'index.html'));
+});
 
-// const entries = [
-//     { title: 'First note', body: 'Notes from the first session.'},
-//     { title: 'Second note', body: 'Notes from the second session.'},
-//     { title: 'Third note', body: 'Notes from the third session.'},
-//   ];
+app.use('/', pagesRouter);
+app.use('/api', apiRouter);
+
+const entries = [
+    { title: 'First note', body: 'Notes from the first session.'},
+    { title: 'Second note', body: 'Notes from the second session.'},
+    { title: 'Third note', body: 'Notes from the third session.'},
+  ];
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); // unit 7
+
+app.get('/slow', async (req, res) => { // unit 7
+  await wait(5000);
+  res.send('Done waiting.');
+});
 
 // 2 functs below are unit 7 home exercise
 app.get('/random-post', async (req, res) => {
