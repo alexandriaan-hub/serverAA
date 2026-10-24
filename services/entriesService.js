@@ -15,7 +15,10 @@ const validateEntry = ({ title, body }) => {
   return Ok({ title, body });
 };
 
-export const listEntries = async () => (await getAll()).map(toEntryDto);
+export const listEntries = async () =>
+  (await getAll())
+    .map(toEntryDto)
+    .sort((a, b) => a.title.localeCompare(b.title));
 
 export const createEntry = async (data) => {
   const result = validateEntry(data);
@@ -32,7 +35,7 @@ export const updateEntry = async (id, data) => {
   return Ok(toEntryDto(await updateById(id, result.value)));
 };
 
-export const deleteEntry = async (id) => {
+export const deleteEntry = async (id) => { 
   const existing = await findById(id);
   if (!existing) return Err({ status: 404, message: "Entry not found" });
   await removeById(id);
