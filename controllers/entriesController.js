@@ -1,5 +1,5 @@
-import * as entriesService from "../services/entriesService.js";
-import { isValidId } from "../repositories/entriesRepository.js";
+import * as entriesService from '../services/entriesService.js';
+import { isValidId } from '../repositories/entriesRepository.js';
 
 // htmx marks every request it sends with an HX-Request header. Those get a
 // piece of HTML to swap into the page; anything else (curl, a test, another
@@ -19,57 +19,59 @@ const sendError = (req, res, { status, message }) => {
 const badId = (req, res) => sendError(req, res, { status: 400, message: 'id must be a valid id' });
 
 export const index = async (req, res) => {
-  const entries = await entriesService.listEntries();
-  res.set("X-Total-Count", entries.length);
-  res.status(200).render("entries", { title: "My Notes", entries });
+  const entries = await entriesService.listEntriesForPage(req.user);
+  res.set('X-Total-Count', entries.length);
+  res.status(200).render('entries', { title: 'My Notes', entries });
 };
 
 export const show = async (req, res) => {
   const { id } = req.params;
   if (!isValidId(id)) return badId(req, res);
-  const result = await entriesService.getEntry(id);
-  if (!result.ok) return sendError(req, res, result.error);
   if (fromHtmx(req)) {
-    res.status(200).render('partials/entry', { entry: result.value });
+    const view = await entriesService.getEntryForPage(id, req.user);
+    if (!view.ok) return sendError(req, res, view.error);
+    res.status(200).render('partials/entry', { entry: view.value });
     return;
   }
+  const result = await entriesService.getEntry(id);
+  if (!result.ok) return sendError(req, res, result.error);
   res.status(200).json(result.value);
 };
 
 export const edit = async (req, res) => {
   const { id } = req.params;
   if (!isValidId(id)) return badId(req, res);
-  const result = await entriesService.getEntry(id);
+  const result = await entriesService.getEntryForEdit(id, req.user);
   if (!result.ok) return sendError(req, res, result.error);
   res.status(200).render('partials/entry-edit', { entry: result.value });
 };
 
 export const create = async (req, res) => {
-  const result = await entriesService.createEntry(req.body);
+  const result = await entriesService.createEntry(req.body, req.user);
   if (!result.ok) return sendError(req, res, result.error);
   if (fromHtmx(req)) {
-    res.status(201).render('partials/entry-created', { entry: result.value });
+    res.status(201).render('partials/entry-created', { entry: { ...result.value, canChange: true } });
     return;
   }
   res.status(201).json(result.value);
 };
 
 export const createClassic = async (req, res) => {
-  const result = await entriesService.createEntry(req.body);
+  const result = await entriesService.createEntry(req.body, req.user);
   if (!result.ok) {
     res.status(result.error.status).send(result.error.message);
     return;
   }
-  res.redirect("/entries");
+  res.redirect('/entries');
 };
 
 export const update = async (req, res) => {
   const { id } = req.params;
   if (!isValidId(id)) return badId(req, res);
-  const result = await entriesService.updateEntry(id, req.body);
+  const result = await entriesService.updateEntry(id, req.body, req.user);
   if (!result.ok) return sendError(req, res, result.error);
   if (fromHtmx(req)) {
-    res.status(200).render('partials/entry-saved', { entry: result.value });
+    res.status(200).render('partials/entry-saved', { entry: { ...result.value, canChange: true } });
     return;
   }
   res.status(200).json(result.value);
@@ -81,7 +83,8 @@ export const toggleFavorite = async (req, res) => {
   const result = await entriesService.toggleFavorite(id);
   if (!result.ok) return sendError(req, res, result.error);
   if (fromHtmx(req)) {
-    res.status(200).render('partials/entry', { entry: result.value });
+    const view = await entriesService.getEntryForPage(id, req.user);
+    res.status(200).render('partials/entry', { entry: view.ok ? view.value : result.value });
     return;
   }
   res.status(200).json(result.value);
@@ -90,11 +93,11 @@ export const toggleFavorite = async (req, res) => {
 export const destroy = async (req, res) => {
   const { id } = req.params;
   if (!isValidId(id)) return badId(req, res);
-  const result = await entriesService.deleteEntry(id);
+  const result = await entriesService.deleteEntry(id, req.user);
   if (!result.ok) return sendError(req, res, result.error);
   if (fromHtmx(req)) {
     res.status(200).render('partials/entry-deleted');
     return;
   }
-  res.status(204).send();
+  res.status(200).send('');
 };

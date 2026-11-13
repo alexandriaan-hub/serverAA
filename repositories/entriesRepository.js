@@ -1,14 +1,16 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const entrySchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
     body: { type: String, required: true },
+    favorite: { type: Boolean, default: false },
+    ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
-const Entry = mongoose.model("Entry", entrySchema);
+const Entry = mongoose.model('Entry', entrySchema);
 
 export const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 

@@ -2,9 +2,13 @@ import express from "express";
 import entriesRouter from "./routes/entries.js";
 import morgan from "morgan";
 import mongoose from "mongoose";
+import cookieParser from 'cookie-parser';
+import authRouter from './routes/auth.js';
+import { attachUser } from './middleware/attachUser.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const SESSION_SECRET = process.env.SESSION_SECRET || 'dev-secret-change-in-production';
 
 await mongoose.connect(
   process.env.MONGODB_URI ||
@@ -18,28 +22,17 @@ app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// unit 9 logger
-app.use((req, res, next) => {
+app.use((req, res, next) => { // unit 9 logger
   console.log(`${req.method} ${req.url}`);
   next();
 });
 
-app.use(morgan("dev"));
+app.use(morgan('dev'));
+app.use(cookieParser(SESSION_SECRET));
+app.use(attachUser);
 
+app.use(authRouter);
 app.use("/entries", entriesRouter);
-
-// 2 functs below are unit 7 home exercise
-app.get("/random-post", async (req, res) => {
-  const response = await fetch("https://jsonplaceholder.typicode.com/posts/1");
-  const post = await response.json();
-  res.status(200).json(post);
-});
-
-const events = [{ title: "Career fair" }, { title: "Hackathon kickoff" }];
-
-app.get("/events", (req, res) => {
-  res.render("events", { events });
-});
 
 app.get("/hello/:name", (req, res) => {
   const name = req.params.name;
@@ -58,13 +51,3 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
-// step one
-// step two
-// step three
-// checkpoint 1
-// checkpoint 2
-// checkpoint 3
-// BUG: off-by-one introduced here
-// checkpoint 4
-// checkpoint 5
-// stable checkpoint

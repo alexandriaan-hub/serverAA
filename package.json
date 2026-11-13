@@ -1,18 +1,16 @@
 {
   "name": "hello-web",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node server.js",
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "build:css": "tailwindcss -i ./src/input.css -o ./public/style.css"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module",
   "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
     "ejs": "^6.0.1",
     "express": "^5.2.1",
     "mongoose": "^9.11.2",
@@ -20,10 +18,11 @@
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.3",
-    "jest": "^25.1.0",
+    "jest": "^25.5.4",
     "tailwindcss": "^4.3.3"
   },
   "allowScripts": {
-    "@parcel/watcher@2.5.1": true
+    "@parcel/watcher@2.5.1": true,
+    "bcrypt@6.0.0": true
   }
 }
